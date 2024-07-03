@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { AntdRegistry } from '@ant-design/nextjs-registry';
+import NextTopLoader from "nextjs-toploader";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,8 +18,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <AntdRegistry>{children}</AntdRegistry>
-        </body>
+        <AntdRegistry>
+          <NextTopLoader showSpinner={false} />
+          <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 16px' }}>
+            {children}
+          </div>
+        </AntdRegistry>
+      </body>
     </html>
   );
 }

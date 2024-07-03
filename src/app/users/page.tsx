@@ -5,7 +5,7 @@ export default function Home() {
   return (
     <div>
       <Navbar />
-      <Tag color="magenta">Home</Tag>
+      <Tag color="magenta">Users</Tag>
     </div>
   );
 }
