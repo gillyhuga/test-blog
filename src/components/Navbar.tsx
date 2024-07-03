@@ -3,12 +3,14 @@ import { useState, useEffect } from 'react';
 import { Layout, Menu, Drawer } from 'antd';
 import { MenuOutlined } from '@ant-design/icons';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 const { Header } = Layout;
 
 const Navbar = () => {
     const [drawerVisible, setDrawerVisible] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
+    const pathname = usePathname();
 
     useEffect(() => {
         const handleResize = () => {
@@ -28,22 +30,16 @@ const Navbar = () => {
     };
 
     const menuItems = [
-        { key: 'blog', label: 'Blog Post', href: '/' },
-        { key: 'user', label: 'Users', href: '/users' },
+        { key: '/', label: <Link href="/">Blog Post</Link> },
+        { key: '/users', label: <Link href="/users">Users</Link> },
     ];
 
     return (
         <Layout>
             <Header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'white', borderBottom: '1px solid #e8e8e8' }}>
-                <div style={{ width: '120px', height: '31px', background: 'rgba(0, 0, 0, 0.2)', margin: '16px 24px 16px 0', float: 'left' }} />
+                <strong style={{ margin: '16px 24px 16px 0', float: 'left' }}>Synapsis</strong>
                 {!isMobile ? (
-                    <Menu mode="horizontal" defaultSelectedKeys={['home']} style={{ lineHeight: '64px', backgroundColor: 'white' }}>
-                        {menuItems.map(item => (
-                            <Menu.Item key={item.key} style={{ color: 'black' }}>
-                                <Link href={item.href}>{item.label}</Link>
-                            </Menu.Item>
-                        ))}
-                    </Menu>
+                    <Menu mode="horizontal" selectedKeys={[pathname]} style={{ lineHeight: '64px', backgroundColor: 'white' }} items={menuItems} />
                 ) : (
                     <MenuOutlined style={{ fontSize: '24px', cursor: 'pointer', color: 'black' }} onClick={toggleDrawer} />
                 )}
@@ -53,21 +49,15 @@ const Navbar = () => {
                 placement="right"
                 closable={false}
                 onClose={toggleDrawer}
-                visible={drawerVisible}
-                drawerStyle={{ backgroundColor: 'white' }}
+                open={drawerVisible}
             >
                 <Menu
                     mode="vertical"
-                    defaultSelectedKeys={['home']}
+                    selectedKeys={[pathname]}
                     onClick={() => setDrawerVisible(false)}
                     style={{ backgroundColor: 'white' }}
-                >
-                    {menuItems.map(item => (
-                        <Menu.Item key={item.key} style={{ color: 'black' }}>
-                            <Link href={item.href}>{item.label}</Link>
-                        </Menu.Item>
-                    ))}
-                </Menu>
+                    items={menuItems}
+                />
             </Drawer>
         </Layout>
     );
