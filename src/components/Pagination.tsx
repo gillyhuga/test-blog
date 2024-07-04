@@ -2,15 +2,17 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from 'antd';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '@/store';
+import { setPage } from '@/store/users';
 
 interface PaginationProps {
   page: number;
   totalPages: number;
-  onNextPage: () => void;
-  onPrevPage: () => void;
 }
 
-const Pagination: React.FC<PaginationProps> = ({ page, totalPages, onNextPage, onPrevPage }) => {
+const Pagination: React.FC<PaginationProps> = ({ page, totalPages }) => {
+  const dispatch = useDispatch<AppDispatch>();
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -26,6 +28,18 @@ const Pagination: React.FC<PaginationProps> = ({ page, totalPages, onNextPage, o
     };
   }, []);
 
+  const handleNextPage = () => {
+    if (page < totalPages) {
+      dispatch(setPage(page + 1));
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (page > 1) {
+      dispatch(setPage(page - 1));
+    }
+  };
+
   return (
     <div
       style={{
@@ -33,9 +47,9 @@ const Pagination: React.FC<PaginationProps> = ({ page, totalPages, onNextPage, o
         marginTop: '20px',
       }}
     >
-      <Button onClick={onPrevPage} disabled={page === 1} icon={<LeftOutlined />} />
+      <Button onClick={handlePrevPage} disabled={page === 1} icon={<LeftOutlined />} />
       <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
-      <Button onClick={onNextPage} disabled={page === totalPages} icon={<RightOutlined />} />
+      <Button onClick={handleNextPage} disabled={page === totalPages} icon={<RightOutlined />} />
     </div>
   );
 };

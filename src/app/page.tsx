@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
-import { fetchPosts, setPage } from '@/store/posts';
+import { fetchPosts } from '@/store/posts';
 import PostList from '@/components/PostList';
 import Loader from '@/components/Loader';
 
@@ -17,18 +17,6 @@ const Home: React.FC = () => {
     }
   }, [dispatch, page, perPage, postsByPage]);
 
-  const handleNextPage = () => {
-    if (page < totalPages) {
-      dispatch(setPage(page + 1));
-    }
-  };
-
-  const handlePrevPage = () => {
-    if (page > 1) {
-      dispatch(setPage(page - 1));
-    }
-  };
-
   if (status === 'loading' && !postsByPage[page]) {
     return <Loader />;
   }
@@ -41,13 +29,7 @@ const Home: React.FC = () => {
 
   return (
     <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
-      <PostList
-        posts={posts}
-        page={page}
-        totalPages={totalPages}
-        onNextPage={handleNextPage}
-        onPrevPage={handlePrevPage}
-      />
+      <PostList posts={posts} page={page} totalPages={totalPages} />
     </div>
   );
 };

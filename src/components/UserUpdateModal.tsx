@@ -41,7 +41,7 @@ const UpdateUserModal: React.FC<UpdateUserModalProps> = ({ visible, onClose, use
     return (
         <Modal
             title="Update User"
-            visible={visible}
+            open={visible}
             onCancel={onClose}
             footer={[
                 <Button key="cancel" onClick={onClose}>

@@ -1,12 +1,15 @@
 'use client';
 import React from 'react';
-import { Table, Tag, Button, Input, Popconfirm } from 'antd';
-import { ManOutlined, WomanOutlined, EyeOutlined, SearchOutlined, UserAddOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { Table, Button, Input } from 'antd';
+import {
+    SearchOutlined,
+    UserAddOutlined,
+} from '@ant-design/icons';
 import UserDetailModal from './UserDetailModal';
 import CreateUserModal from './UserCreateModal';
 import UpdateUserModal from './UserUpdateModal';
+import { getColumns } from './UserTableColumns';
 import Pagination from './Pagination';
-
 
 interface UserTableProps {
     users: any[];
@@ -17,8 +20,6 @@ interface UserTableProps {
     onViewDetails: (userId: number) => void;
     onCreateModalOpen: () => void;
     onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    onNextPage: () => void;
-    onPrevPage: () => void;
     onDeleteUser: (userId: number) => void;
     onUpdateUser: (user: any) => void;
     selectedUserId: number | null;
@@ -40,8 +41,6 @@ const UserTable: React.FC<UserTableProps> = ({
     onViewDetails,
     onCreateModalOpen,
     onSearchChange,
-    onNextPage,
-    onPrevPage,
     onDeleteUser,
     onUpdateUser,
     selectedUserId,
@@ -51,67 +50,9 @@ const UserTable: React.FC<UserTableProps> = ({
     onCreateModalClose,
     isUpdateModalVisible,
     onUpdateModalClose,
-    selectedUser
+    selectedUser,
 }) => {
-    const capitalizeFirstLetter = (string: string) => {
-        return string.charAt(0).toUpperCase() + string.slice(1);
-    };
-
-    const columns = [
-        {
-            title: 'ID',
-            dataIndex: 'id',
-            key: 'id',
-        },
-        {
-            title: 'Name',
-            dataIndex: 'name',
-            key: 'name',
-        },
-        {
-            title: 'Email',
-            dataIndex: 'email',
-            key: 'email',
-        },
-        {
-            title: 'Gender',
-            dataIndex: 'gender',
-            key: 'gender',
-            render: (gender: string) => (
-                <Tag color={gender === 'male' ? 'blue' : 'pink'} icon={gender === 'male' ? <ManOutlined /> : <WomanOutlined />}>
-                    {capitalizeFirstLetter(gender)}
-                </Tag>
-            ),
-        },
-        {
-            title: 'Status',
-            dataIndex: 'status',
-            key: 'status',
-            render: (status: string) => (
-                <Tag color={status === 'active' ? 'green' : 'red'}>
-                    {capitalizeFirstLetter(status)}
-                </Tag>
-            ),
-        },
-        {
-            title: 'Action',
-            key: 'action',
-            render: (record: any) => (
-                <>
-                    <Button icon={<EyeOutlined />} onClick={() => onViewDetails(record.id)} />
-                    <Button icon={<EditOutlined style={{ color: '#faad14' }} />} style={{ marginLeft: 8 }} onClick={() => onUpdateUser(record)} />
-                    <Popconfirm
-                        title="Are you sure to delete this user?"
-                        onConfirm={() => onDeleteUser(record.id)}
-                        okText="Yes"
-                        cancelText="No"
-                    >
-                        <Button icon={<DeleteOutlined style={{ color: '#ff4d4f' }} />} style={{ marginLeft: 8 }} />
-                    </Popconfirm>
-                </>
-            ),
-        },
-    ];
+    const columns = getColumns(onViewDetails, onUpdateUser, onDeleteUser);
 
     return (
         <>
@@ -138,8 +79,6 @@ const UserTable: React.FC<UserTableProps> = ({
             <Pagination
                 page={page}
                 totalPages={totalPages}
-                onNextPage={onNextPage}
-                onPrevPage={onPrevPage}
             />
             <UserDetailModal userId={selectedUserId} visible={isModalVisible} onClose={onModalClose} />
             <CreateUserModal visible={isCreateModalVisible} onClose={onCreateModalClose} />

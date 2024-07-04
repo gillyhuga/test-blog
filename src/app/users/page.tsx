@@ -2,9 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
-import { fetchUsers, setPage, setSearchText, deleteUser, updateUser } from '@/store/users';
+import { fetchUsers, setSearchText, deleteUser } from '@/store/users';
 import UserTable from '@/components/UserTable';
-import { User } from '@/types';
+import { message } from 'antd';
 
 const UsersPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -21,18 +21,6 @@ const UsersPage: React.FC = () => {
       dispatch(fetchUsers({ page, perPage }));
     }
   }, [dispatch, page, perPage, usersByPage]);
-
-  const handleNextPage = () => {
-    if (page < totalPages) {
-      dispatch(setPage(page + 1));
-    }
-  };
-
-  const handlePrevPage = () => {
-    if (page > 1) {
-      dispatch(setPage(page - 1));
-    }
-  };
 
   const handleViewDetails = (userId: number) => {
     setSelectedUserId(userId);
@@ -70,11 +58,7 @@ const UsersPage: React.FC = () => {
     dispatch(deleteUser(userId)).then(() => {
       dispatch(fetchUsers({ page, perPage }));
     });
-  };
-
-  const handleUpdateUser = async (userId: number, userData: Partial<User>) => {
-    await dispatch(updateUser({ userId, userData })).unwrap();
-    dispatch(fetchUsers({ page, perPage }));
+    message.success('User deleted successfully!');
   };
 
   const filteredUsers = usersByPage[page]?.filter((user) =>
@@ -92,8 +76,6 @@ const UsersPage: React.FC = () => {
         onViewDetails={handleViewDetails}
         onCreateModalOpen={handleCreateModalOpen}
         onSearchChange={handleSearchChange}
-        onNextPage={handleNextPage}
-        onPrevPage={handlePrevPage}
         onDeleteUser={handleDeleteUser}
         onUpdateUser={handleUpdateModalOpen}
         selectedUserId={selectedUserId}

@@ -9,11 +9,9 @@ interface PostListProps {
   posts: Post[];
   page: number;
   totalPages: number;
-  onNextPage: () => void;
-  onPrevPage: () => void;
 }
 
-const PostList: React.FC<PostListProps> = ({ posts, page, totalPages, onNextPage, onPrevPage }) => {
+const PostList: React.FC<PostListProps> = ({ posts, page, totalPages }) => {
   return (
     <div>
       <List
@@ -33,12 +31,7 @@ const PostList: React.FC<PostListProps> = ({ posts, page, totalPages, onNextPage
           </List.Item>
         )}
       />
-      <Pagination
-        page={page}
-        totalPages={totalPages}
-        onNextPage={onNextPage}
-        onPrevPage={onPrevPage}
-      />
+      <Pagination page={page} totalPages={totalPages} />
     </div>
   );
 };
