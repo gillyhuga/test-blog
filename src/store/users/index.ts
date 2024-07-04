@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { User } from '@/types';
-import { fetchUsersApi, fetchUserByIdApi, createUserApi, deleteUserApi } from '@/api/users';
+import { fetchUsersApi, fetchUserByIdApi, createUserApi, updateUserApi, deleteUserApi } from '@/api/users';
 
 interface UsersState {
   usersByPage: { [key: number]: User[] };
@@ -49,6 +49,14 @@ export const createUser = createAsyncThunk(
   }
 );
 
+export const updateUser = createAsyncThunk(
+  'users/updateUser',
+  async ({ userId, userData }: { userId: number; userData: Partial<User> }) => {
+    return await updateUserApi(userId, userData);
+  }
+);
+
+
 export const deleteUser = createAsyncThunk(
   'users/deleteUser',
   async (userId: number) => {
@@ -88,6 +96,13 @@ const usersSlice = createSlice({
       })
       .addCase(createUser.fulfilled, (state, action) => {
         state.userDetails[action.payload.id] = action.payload;
+      })
+      .addCase(updateUser.fulfilled, (state, action) => {
+        const updatedUser = action.payload;
+        const page = state.page;
+        state.usersByPage[page] = state.usersByPage[page].map(user =>
+          user.id === updatedUser.id ? updatedUser : user
+        );
       })
       .addCase(deleteUser.fulfilled, (state, action) => {
         const page = state.page;

@@ -1,10 +1,12 @@
 'use client';
 import React from 'react';
 import { Table, Tag, Button, Input, Popconfirm } from 'antd';
-import { ManOutlined, WomanOutlined, EyeOutlined, SearchOutlined, UserAddOutlined, DeleteOutlined } from '@ant-design/icons';
+import { ManOutlined, WomanOutlined, EyeOutlined, SearchOutlined, UserAddOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import UserDetailModal from './UserDetailModal';
 import CreateUserModal from './UserCreateModal';
+import UpdateUserModal from './UserUpdateModal';
 import Pagination from './Pagination';
+
 
 interface UserTableProps {
     users: any[];
@@ -18,11 +20,15 @@ interface UserTableProps {
     onNextPage: () => void;
     onPrevPage: () => void;
     onDeleteUser: (userId: number) => void;
+    onUpdateUser: (user: any) => void;
     selectedUserId: number | null;
     isModalVisible: boolean;
     onModalClose: () => void;
     isCreateModalVisible: boolean;
     onCreateModalClose: () => void;
+    isUpdateModalVisible: boolean;
+    onUpdateModalClose: () => void;
+    selectedUser: any | null;
 }
 
 const UserTable: React.FC<UserTableProps> = ({
@@ -37,11 +43,15 @@ const UserTable: React.FC<UserTableProps> = ({
     onNextPage,
     onPrevPage,
     onDeleteUser,
+    onUpdateUser,
     selectedUserId,
     isModalVisible,
     onModalClose,
     isCreateModalVisible,
-    onCreateModalClose
+    onCreateModalClose,
+    isUpdateModalVisible,
+    onUpdateModalClose,
+    selectedUser
 }) => {
     const capitalizeFirstLetter = (string: string) => {
         return string.charAt(0).toUpperCase() + string.slice(1);
@@ -86,16 +96,17 @@ const UserTable: React.FC<UserTableProps> = ({
         {
             title: 'Action',
             key: 'action',
-            render: (text: any, record: any) => (
+            render: (record: any) => (
                 <>
                     <Button icon={<EyeOutlined />} onClick={() => onViewDetails(record.id)} />
+                    <Button icon={<EditOutlined style={{ color: '#faad14' }} />} style={{ marginLeft: 8 }} onClick={() => onUpdateUser(record)} />
                     <Popconfirm
                         title="Are you sure to delete this user?"
                         onConfirm={() => onDeleteUser(record.id)}
                         okText="Yes"
                         cancelText="No"
                     >
-                        <Button icon={<DeleteOutlined />} style={{ marginLeft: 8 }} />
+                        <Button icon={<DeleteOutlined style={{ color: '#ff4d4f' }} />} style={{ marginLeft: 8 }} />
                     </Popconfirm>
                 </>
             ),
@@ -132,6 +143,7 @@ const UserTable: React.FC<UserTableProps> = ({
             />
             <UserDetailModal userId={selectedUserId} visible={isModalVisible} onClose={onModalClose} />
             <CreateUserModal visible={isCreateModalVisible} onClose={onCreateModalClose} />
+            <UpdateUserModal visible={isUpdateModalVisible} onClose={onUpdateModalClose} user={selectedUser} />
         </>
     );
 };

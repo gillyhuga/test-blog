@@ -2,16 +2,19 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
-import { fetchUsers, setPage, setSearchText, deleteUser } from '@/store/users';
+import { fetchUsers, setPage, setSearchText, deleteUser, updateUser } from '@/store/users';
 import UserTable from '@/components/UserTable';
+import { User } from '@/types';
 
 const UsersPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { usersByPage, totalPages, page, perPage, status, searchText } = useSelector((state: RootState) => state.users);
 
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [selectedUser, setSelectedUser] = useState<any | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
+  const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false);
 
   useEffect(() => {
     if (!usersByPage[page]) {
@@ -49,6 +52,16 @@ const UsersPage: React.FC = () => {
     setIsCreateModalVisible(false);
   };
 
+  const handleUpdateModalOpen = (user: any) => {
+    setSelectedUser(user);
+    setIsUpdateModalVisible(true);
+  };
+
+  const handleUpdateModalClose = () => {
+    setIsUpdateModalVisible(false);
+    setSelectedUser(null);
+  };
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     dispatch(setSearchText(e.target.value));
   };
@@ -57,6 +70,11 @@ const UsersPage: React.FC = () => {
     dispatch(deleteUser(userId)).then(() => {
       dispatch(fetchUsers({ page, perPage }));
     });
+  };
+
+  const handleUpdateUser = async (userId: number, userData: Partial<User>) => {
+    await dispatch(updateUser({ userId, userData })).unwrap();
+    dispatch(fetchUsers({ page, perPage }));
   };
 
   const filteredUsers = usersByPage[page]?.filter((user) =>
@@ -77,14 +95,17 @@ const UsersPage: React.FC = () => {
         onNextPage={handleNextPage}
         onPrevPage={handlePrevPage}
         onDeleteUser={handleDeleteUser}
+        onUpdateUser={handleUpdateModalOpen}
         selectedUserId={selectedUserId}
         isModalVisible={isModalVisible}
         onModalClose={handleModalClose}
         isCreateModalVisible={isCreateModalVisible}
         onCreateModalClose={handleCreateModalClose}
+        isUpdateModalVisible={isUpdateModalVisible}
+        onUpdateModalClose={handleUpdateModalClose}
+        selectedUser={selectedUser}
       />
     </div>
-
   );
 };
 
