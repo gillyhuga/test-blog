@@ -1,10 +1,11 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { User } from '@/types';
-import { fetchUsersApi, fetchUserByIdApi, createUserApi } from '@/api/users';
+import { fetchUsersApi, fetchUserByIdApi, createUserApi, deleteUserApi } from '@/api/users';
 
 interface UsersState {
   usersByPage: { [key: number]: User[] };
   userDetails: { [key: number]: User | null };
+  filteredUsers: User[];
   total: number;
   page: number;
   perPage: number;
@@ -17,6 +18,7 @@ interface UsersState {
 const initialState: UsersState = {
   usersByPage: {},
   userDetails: {},
+  filteredUsers: [],
   total: 0,
   page: 1,
   perPage: 10,
@@ -47,15 +49,20 @@ export const createUser = createAsyncThunk(
   }
 );
 
+export const deleteUser = createAsyncThunk(
+  'users/deleteUser',
+  async (userId: number) => {
+    await deleteUserApi(userId);
+    return userId;
+  }
+);
+
 const usersSlice = createSlice({
   name: 'users',
   initialState,
   reducers: {
     setPage: (state, action: PayloadAction<number>) => {
       state.page = action.payload;
-    },
-    setPerPage: (state, action: PayloadAction<number>) => {
-      state.perPage = action.payload;
     },
     setSearchText: (state, action: PayloadAction<string>) => {
       state.searchText = action.payload;
@@ -76,31 +83,19 @@ const usersSlice = createSlice({
         state.status = 'failed';
         state.error = action.error.message || null;
       })
-      .addCase(fetchUserById.pending, (state) => {
-        state.status = 'loading';
-      })
       .addCase(fetchUserById.fulfilled, (state, action) => {
-        state.status = 'succeeded';
         state.userDetails[action.meta.arg] = action.payload;
       })
-      .addCase(fetchUserById.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.error.message || null;
-      })
-      .addCase(createUser.pending, (state) => {
-        state.status = 'loading';
-      })
       .addCase(createUser.fulfilled, (state, action) => {
-        state.status = 'succeeded';
         state.userDetails[action.payload.id] = action.payload;
       })
-      .addCase(createUser.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.error.message || null;
+      .addCase(deleteUser.fulfilled, (state, action) => {
+        const page = state.page;
+        state.usersByPage[page] = state.usersByPage[page].filter(user => user.id !== action.payload);
       });
   },
 });
 
-export const { setPage, setPerPage, setSearchText } = usersSlice.actions;
+export const { setPage, setSearchText } = usersSlice.actions;
 
 export default usersSlice.reducer;

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
-import { fetchUsers, setPage, setSearchText } from '@/store/users';
+import { fetchUsers, setPage, setSearchText, deleteUser } from '@/store/users';
 import UserTable from '@/components/UserTable';
 
 const UsersPage: React.FC = () => {
@@ -53,6 +53,12 @@ const UsersPage: React.FC = () => {
     dispatch(setSearchText(e.target.value));
   };
 
+  const handleDeleteUser = (userId: number) => {
+    dispatch(deleteUser(userId)).then(() => {
+      dispatch(fetchUsers({ page, perPage }));
+    });
+  };
+
   const filteredUsers = usersByPage[page]?.filter((user) =>
     user.name.toLowerCase().includes(searchText.toLowerCase())
   ) || [];
@@ -70,6 +76,7 @@ const UsersPage: React.FC = () => {
         onSearchChange={handleSearchChange}
         onNextPage={handleNextPage}
         onPrevPage={handlePrevPage}
+        onDeleteUser={handleDeleteUser}
         selectedUserId={selectedUserId}
         isModalVisible={isModalVisible}
         onModalClose={handleModalClose}
@@ -77,6 +84,7 @@ const UsersPage: React.FC = () => {
         onCreateModalClose={handleCreateModalClose}
       />
     </div>
+
   );
 };
 

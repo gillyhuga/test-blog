@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
-import { Table, Tag, Button, Input } from 'antd';
-import { ManOutlined, WomanOutlined, EyeOutlined, SearchOutlined, UserAddOutlined } from '@ant-design/icons';
+import { Table, Tag, Button, Input, Popconfirm } from 'antd';
+import { ManOutlined, WomanOutlined, EyeOutlined, SearchOutlined, UserAddOutlined, DeleteOutlined } from '@ant-design/icons';
 import UserDetailModal from './UserDetailModal';
 import CreateUserModal from './UserCreateModal';
 import Pagination from './Pagination';
@@ -17,6 +17,7 @@ interface UserTableProps {
     onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onNextPage: () => void;
     onPrevPage: () => void;
+    onDeleteUser: (userId: number) => void;
     selectedUserId: number | null;
     isModalVisible: boolean;
     onModalClose: () => void;
@@ -35,6 +36,7 @@ const UserTable: React.FC<UserTableProps> = ({
     onSearchChange,
     onNextPage,
     onPrevPage,
+    onDeleteUser,
     selectedUserId,
     isModalVisible,
     onModalClose,
@@ -85,7 +87,17 @@ const UserTable: React.FC<UserTableProps> = ({
             title: 'Action',
             key: 'action',
             render: (text: any, record: any) => (
-                <Button icon={<EyeOutlined />} onClick={() => onViewDetails(record.id)} />
+                <>
+                    <Button icon={<EyeOutlined />} onClick={() => onViewDetails(record.id)} />
+                    <Popconfirm
+                        title="Are you sure to delete this user?"
+                        onConfirm={() => onDeleteUser(record.id)}
+                        okText="Yes"
+                        cancelText="No"
+                    >
+                        <Button icon={<DeleteOutlined />} style={{ marginLeft: 8 }} />
+                    </Popconfirm>
+                </>
             ),
         },
     ];
