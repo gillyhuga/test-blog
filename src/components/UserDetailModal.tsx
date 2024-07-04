@@ -1,10 +1,11 @@
 'use client';
 import React, { useEffect } from 'react';
-import { Modal, Spin, Card, Row, Col, Avatar, Tag } from 'antd';
+import { Modal, Card, Row, Col, Avatar, Tag } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserById } from '@/store/users';
 import { RootState, AppDispatch } from '@/store';
 import { UserOutlined, CheckCircleOutlined, CloseCircleOutlined, ManOutlined, WomanOutlined } from '@ant-design/icons';
+import Loader from './Loader';
 
 interface UserDetailModalProps {
     userId: number | null;
@@ -28,11 +29,9 @@ const UserDetailModal: React.FC<UserDetailModalProps> = ({ userId, visible, onCl
     };
 
     return (
-        <Modal visible={visible} onCancel={onClose} footer={null} centered>
+        <Modal open={visible} onCancel={onClose} footer={null} centered>
             {status === 'loading' ? (
-                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100px' }}>
-                    <Spin size="large" />
-                </div>
+                <Loader />
             ) : userDetail ? (
                 <Card title="User Details" bordered={false}>
                     <Row justify="center" align="middle">

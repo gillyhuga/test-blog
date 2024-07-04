@@ -1,51 +1,46 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React from 'react';
 import { Table, Tag, Button, Input } from 'antd';
-import { fetchUsers, setPage, setSearchText } from '@/store/users';
-import { RootState, AppDispatch } from '@/store';
-import Pagination from './Pagination';
-import Loader from './Loader';
+import { ManOutlined, WomanOutlined, EyeOutlined, SearchOutlined, UserAddOutlined } from '@ant-design/icons';
 import UserDetailModal from './UserDetailModal';
-import { ManOutlined, WomanOutlined, EyeOutlined, SearchOutlined } from '@ant-design/icons';
+import CreateUserModal from './UserCreateModal';
+import Pagination from './Pagination';
 
-const UserTable: React.FC = () => {
-    const dispatch = useDispatch<AppDispatch>();
-    const { filteredUsers, totalPages, page, perPage, status, error, searchText } = useSelector((state: RootState) => state.users);
+interface UserTableProps {
+    users: any[];
+    status: string;
+    searchText: string;
+    page: number;
+    totalPages: number;
+    onViewDetails: (userId: number) => void;
+    onCreateModalOpen: () => void;
+    onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onNextPage: () => void;
+    onPrevPage: () => void;
+    selectedUserId: number | null;
+    isModalVisible: boolean;
+    onModalClose: () => void;
+    isCreateModalVisible: boolean;
+    onCreateModalClose: () => void;
+}
 
-    const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
-    const [isModalVisible, setIsModalVisible] = useState(false);
-
-    useEffect(() => {
-        dispatch(fetchUsers({ page, perPage }));
-    }, [dispatch, page, perPage]);
-
-    const handleNextPage = () => {
-        if (page < totalPages) {
-            dispatch(setPage(page + 1));
-        }
-    };
-
-    const handlePrevPage = () => {
-        if (page > 1) {
-            dispatch(setPage(page - 1));
-        }
-    };
-
-    const handleViewDetails = (userId: number) => {
-        setSelectedUserId(userId);
-        setIsModalVisible(true);
-    };
-
-    const handleModalClose = () => {
-        setIsModalVisible(false);
-        setSelectedUserId(null);
-    };
-
-    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        dispatch(setSearchText(e.target.value));
-    };
-
+const UserTable: React.FC<UserTableProps> = ({
+    users,
+    status,
+    searchText,
+    page,
+    totalPages,
+    onViewDetails,
+    onCreateModalOpen,
+    onSearchChange,
+    onNextPage,
+    onPrevPage,
+    selectedUserId,
+    isModalVisible,
+    onModalClose,
+    isCreateModalVisible,
+    onCreateModalClose
+}) => {
     const capitalizeFirstLetter = (string: string) => {
         return string.charAt(0).toUpperCase() + string.slice(1);
     };
@@ -90,44 +85,41 @@ const UserTable: React.FC = () => {
             title: 'Action',
             key: 'action',
             render: (text: any, record: any) => (
-                <Button icon={<EyeOutlined />} onClick={() => handleViewDetails(record.id)} />
+                <Button icon={<EyeOutlined />} onClick={() => onViewDetails(record.id)} />
             ),
         },
     ];
 
-    if (status === 'loading' && !filteredUsers.length) {
-        return <Loader />;
-    }
-
-    if (status === 'failed') {
-        return <div>Error: {error}</div>;
-    }
-
     return (
         <>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <Input
                     placeholder="Search users"
                     prefix={<SearchOutlined />}
                     value={searchText}
-                    onChange={handleSearchChange}
-                    style={{ width: '300px' }}
+                    onChange={onSearchChange}
+                    style={{ width: '300px', marginRight: '10px' }}
                 />
+                <Button type="primary" onClick={onCreateModalOpen} icon={<UserAddOutlined />}>
+                    Create User
+                </Button>
             </div>
             <Table
-                dataSource={filteredUsers}
+                dataSource={users}
                 columns={columns}
                 rowKey="id"
                 pagination={false}
                 scroll={{ x: 800 }}
+                loading={status === 'loading'}
             />
             <Pagination
                 page={page}
                 totalPages={totalPages}
-                onNextPage={handleNextPage}
-                onPrevPage={handlePrevPage}
+                onNextPage={onNextPage}
+                onPrevPage={onPrevPage}
             />
-            <UserDetailModal userId={selectedUserId} visible={isModalVisible} onClose={handleModalClose} />
+            <UserDetailModal userId={selectedUserId} visible={isModalVisible} onClose={onModalClose} />
+            <CreateUserModal visible={isCreateModalVisible} onClose={onCreateModalClose} />
         </>
     );
 };

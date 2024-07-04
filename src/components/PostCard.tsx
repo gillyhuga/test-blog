@@ -36,27 +36,28 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
           flexDirection: 'column',
           height: '100%',
         }}
-        bodyStyle={{ padding: '16px', display: 'flex', flexDirection: 'column', flex: '1' }}
       >
-        <Card.Meta
-          title={<span style={{ fontSize: '1em', color: '#1890ff' }}>{post.title}</span>}
-          description={
-            <div
-              style={{
-                fontSize: '1em',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                display: '-webkit-box',
-                WebkitLineClamp: 3,
-                WebkitBoxOrient: 'vertical',
-                height: '100%',
-                textAlign: 'justify',
-              }}
-            >
-              {post.body}
-            </div>
-          }
-        />
+        <div style={{ display: 'flex', flexDirection: 'column', flex: '1' }}>
+          <Card.Meta
+            title={<span style={{ fontSize: '1em', color: '#1890ff' }}>{post.title}</span>}
+            description={
+              <div
+                style={{
+                  fontSize: '1em',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  display: '-webkit-box',
+                  WebkitLineClamp: 3,
+                  WebkitBoxOrient: 'vertical',
+                  height: '100%',
+                  textAlign: 'justify',
+                }}
+              >
+                {post.body}
+              </div>
+            }
+          />
+        </div>
       </Card>
     </Link>
   );

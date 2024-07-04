@@ -1,10 +1,9 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { User } from '@/types';
-import { fetchUsersApi, fetchUserByIdApi } from '@/api/users';
+import { fetchUsersApi, fetchUserByIdApi, createUserApi } from '@/api/users';
 
 interface UsersState {
   usersByPage: { [key: number]: User[] };
-  filteredUsers: User[];
   userDetails: { [key: number]: User | null };
   total: number;
   page: number;
@@ -17,7 +16,6 @@ interface UsersState {
 
 const initialState: UsersState = {
   usersByPage: {},
-  filteredUsers: [],
   userDetails: {},
   total: 0,
   page: 1,
@@ -42,6 +40,13 @@ export const fetchUserById = createAsyncThunk(
   }
 );
 
+export const createUser = createAsyncThunk(
+  'users/createUser',
+  async (userData: User) => {
+    return await createUserApi(userData);
+  }
+);
+
 const usersSlice = createSlice({
   name: 'users',
   initialState,
@@ -54,9 +59,6 @@ const usersSlice = createSlice({
     },
     setSearchText: (state, action: PayloadAction<string>) => {
       state.searchText = action.payload;
-      state.filteredUsers = state.usersByPage[state.page]?.filter((user) =>
-        user.name.toLowerCase().includes(action.payload.toLowerCase())
-      ) || [];
     },
   },
   extraReducers: (builder) => {
@@ -69,9 +71,6 @@ const usersSlice = createSlice({
         state.usersByPage[state.page] = action.payload.users;
         state.total = action.payload.total;
         state.totalPages = Math.ceil(action.payload.total / state.perPage);
-        state.filteredUsers = action.payload.users.filter((user) =>
-          user.name.toLowerCase().includes(state.searchText.toLowerCase())
-        );
       })
       .addCase(fetchUsers.rejected, (state, action) => {
         state.status = 'failed';
@@ -85,6 +84,17 @@ const usersSlice = createSlice({
         state.userDetails[action.meta.arg] = action.payload;
       })
       .addCase(fetchUserById.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message || null;
+      })
+      .addCase(createUser.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(createUser.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.userDetails[action.payload.id] = action.payload;
+      })
+      .addCase(createUser.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message || null;
       });
