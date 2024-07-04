@@ -1,39 +1,88 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import axios from 'axios';
 import { User } from '@/types';
+import { fetchUsersApi, fetchUserByIdApi } from '@/api/users';
 
-interface UserState {
+interface UsersState {
+  usersByPage: { [key: number]: User[] };
+  filteredUsers: User[];
   userDetails: { [key: number]: User | null };
+  total: number;
+  page: number;
+  perPage: number;
+  totalPages: number;
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
+  searchText: string;
 }
 
-const initialState: UserState = {
+const initialState: UsersState = {
+  usersByPage: {},
+  filteredUsers: [],
   userDetails: {},
+  total: 0,
+  page: 1,
+  perPage: 10,
+  totalPages: 1,
   status: 'idle',
   error: null,
+  searchText: '',
 };
 
-export const fetchUserById = createAsyncThunk(
-  'user/fetchUserById',
-  async (userId: number) => {
-    const response = await axios.get<User>(`https://gorest.co.in/public/v2/users/${userId}`);
-    return response.data;
+export const fetchUsers = createAsyncThunk(
+  'users/fetchUsers',
+  async ({ page, perPage }: { page: number; perPage: number }) => {
+    return await fetchUsersApi(page, perPage);
   }
 );
 
-const userSlice = createSlice({
-  name: 'user',
+export const fetchUserById = createAsyncThunk(
+  'users/fetchUserById',
+  async (id: number) => {
+    return await fetchUserByIdApi(id);
+  }
+);
+
+const usersSlice = createSlice({
+  name: 'users',
   initialState,
-  reducers: {},
+  reducers: {
+    setPage: (state, action: PayloadAction<number>) => {
+      state.page = action.payload;
+    },
+    setPerPage: (state, action: PayloadAction<number>) => {
+      state.perPage = action.payload;
+    },
+    setSearchText: (state, action: PayloadAction<string>) => {
+      state.searchText = action.payload;
+      state.filteredUsers = state.usersByPage[state.page]?.filter((user) =>
+        user.name.toLowerCase().includes(action.payload.toLowerCase())
+      ) || [];
+    },
+  },
   extraReducers: (builder) => {
     builder
+      .addCase(fetchUsers.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchUsers.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.usersByPage[state.page] = action.payload.users;
+        state.total = action.payload.total;
+        state.totalPages = Math.ceil(action.payload.total / state.perPage);
+        state.filteredUsers = action.payload.users.filter((user) =>
+          user.name.toLowerCase().includes(state.searchText.toLowerCase())
+        );
+      })
+      .addCase(fetchUsers.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message || null;
+      })
       .addCase(fetchUserById.pending, (state) => {
         state.status = 'loading';
       })
       .addCase(fetchUserById.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.userDetails[action.payload.id] = action.payload;
+        state.userDetails[action.meta.arg] = action.payload;
       })
       .addCase(fetchUserById.rejected, (state, action) => {
         state.status = 'failed';
@@ -42,4 +91,6 @@ const userSlice = createSlice({
   },
 });
 
-export default userSlice.reducer;
+export const { setPage, setPerPage, setSearchText } = usersSlice.actions;
+
+export default usersSlice.reducer;

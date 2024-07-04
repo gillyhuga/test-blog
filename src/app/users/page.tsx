@@ -1,10 +1,13 @@
-import { Tag } from 'antd';
-import Navbar from "@/components/Navbar";
+'use client';
+import React from 'react';
+import UserTable from '@/components/UserTable';
 
-export default function Home() {
+const UsersPage: React.FC = () => {
   return (
-    <div>
-      <Tag color="magenta">Users</Tag>
+    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+      <UserTable />
     </div>
   );
-}
+};
+
+export default UsersPage;
